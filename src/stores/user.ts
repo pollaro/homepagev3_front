@@ -17,11 +17,11 @@ export const useUserStore = defineStore('user', () => {
       }, 500)
     })
   }
-  function logoutSpotify() {
+  function logoutSpotify(): void {
     spotifyLoggedIn.value = false
   }
 
-  function check() {
+  function check(): void {
     axios.get('/api/spotify/check/').then((response) => {
       spotifyLoggedIn.value = response.data
     })

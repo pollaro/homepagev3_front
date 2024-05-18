@@ -4,22 +4,31 @@
   import { useSpotifyStore } from '@/stores/spotify'
   import { BListGroup, BListGroupItem } from 'bootstrap-vue-next'
   import { onMounted, ref } from 'vue'
-  import router from '@/router'
+  import type { Ref } from 'vue'
+  import { useRouter } from 'vue-router'
+
+  interface Tool {
+    id: number
+    name: string
+    path: string
+  }
 
   const userStore = useUserStore()
   const spotifyStore = useSpotifyStore()
   const selectedPlaylist = ref()
-  const selectedTool = ref()
-  const playlists = ref()
+  const playlistType = ref('')
+  const selectedTool: Ref<Tool> = ref({ id: 0, name: '', path: '/' })
+  const router = useRouter()
 
-  const tools = [
+  const tools: Tool[] = [
     { id: 1, name: 'SetList FM', path: '/setlist' },
     { id: 2, name: 'Genre', path: '/genre' },
-    { id: 3, name: 'Decade', path: '/decade' }
+    { id: 3, name: 'Decade', path: '/decade' },
+    { id: 4, name: 'Manual', path: '/manual' }
   ]
 
-  function changeRoute() {
-    router.push(`/spotify/${selectedTool.value}`)
+  function changeRoute(): void {
+    router.push({ path: `/spotify${selectedTool.value}` })
   }
 
   onMounted(() => {
@@ -28,6 +37,8 @@
   userStore.$subscribe((mutation, state) => {
     if (state.spotifyLoggedIn == true) {
       spotifyStore.getUserInfo()
+      spotifyStore.getPlaylists()
+      spotifyStore.getSavedTracks()
     }
   })
 </script>
@@ -60,15 +71,41 @@
         </div>
       </div>
       <div class="row">Playlist Creator</div>
-      <div class="row">Playlist Tool: {{ selectedTool }}</div>
-      <select v-model="selectedTool">
-        <option v-for="tool in tools" :value="tool.path" :key="tool.id" @change="changeRoute()">{{ tool.name }}</option>
-      </select>
-      <div class="row">Source playlist: {{ selectedPlaylist }}</div>
-      <select v-model="selectedPlaylist">
-        <option v-for="playlist in playlists" :value="playlist" :key="playlist.id">{{ playlist.name }}</option>
-      </select>
-      <router-view />
+      <div class="row">
+        <div class="col-md-6">
+          Playlist Tool:
+          <select v-model="selectedTool" @change="changeRoute()">
+            <option v-for="tool in tools" :value="tool.path" :key="tool.id">
+              {{ tool.name }}
+            </option>
+          </select>
+        </div>
+      </div>
+      <div class="row">
+        <div class="col-md-6">
+          Source playlist:
+          <select v-model="playlistType">
+            <option value="playlist">Playlist</option>
+            <option value="savedSongs">Saved Tracks</option>
+          </select>
+        </div>
+      </div>
+      <div class="row">
+        <div class="col-md-5 offset-1">
+          <select v-model="selectedPlaylist" v-show="playlistType === 'playlist'">
+            <option
+              v-for="playlist in spotifyStore.playlists.sort((a, b) => a.name.localeCompare(b.name))"
+              :value="playlist"
+              :key="playlist.id"
+            >
+              {{ playlist.name }}
+            </option>
+          </select>
+        </div>
+      </div>
+      <router-view v-show="selectedTool" v-slot="{ Component }">
+        <component :is="Component" :playlist="`${playlistType} === 'savedSongs' ? 'Saved Tracks' : selectedPlaylist`" />
+      </router-view>
     </div>
   </div>
 </template>

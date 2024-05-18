@@ -7,6 +7,7 @@ import SpotifyLogin from '@/components/spotify/SpotifyLogin.vue'
 import SpotifySetlistTool from '@/components/spotify/SpotifySetlistTool.vue'
 import SpotifyGenreTool from '@/components/spotify/SpotifyGenreTool.vue'
 import SpotifyDecadeTool from '@/components/spotify/SpotifyDecadeTool.vue'
+import SpotifyManualTool from '@/components/spotify/SpotifyManualTool.vue'
 
 const routes = [
   {
@@ -39,17 +40,26 @@ const routes = [
       {
         path: 'setlist',
         name: 'spotify setlist tool',
-        component: SpotifySetlistTool
+        component: SpotifySetlistTool,
+        props: true
       },
       {
         path: 'genre',
         name: 'spotify genre tool',
-        component: SpotifyGenreTool
+        component: SpotifyGenreTool,
+        props: true
       },
       {
         path: 'decade',
         name: 'spotify decade tool',
-        component: SpotifyDecadeTool
+        component: SpotifyDecadeTool,
+        props: true
+      },
+      {
+        path: 'manual',
+        name: 'spotify manual tool',
+        component: SpotifyManualTool,
+        props: true
       }
     ]
   }
