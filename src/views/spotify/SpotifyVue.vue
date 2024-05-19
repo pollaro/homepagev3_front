@@ -104,7 +104,10 @@
         </div>
       </div>
       <router-view v-show="selectedTool" v-slot="{ Component }">
-        <component :is="Component" :playlist="`${playlistType} === 'savedSongs' ? 'Saved Tracks' : selectedPlaylist`" />
+        <component
+          :is="Component"
+          :playlist="`${playlistType} === 'savedSongs' ? 'Saved Tracks' : ${selectedPlaylist.name}`"
+        />
       </router-view>
     </div>
   </div>

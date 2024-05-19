@@ -26,7 +26,7 @@ export const useSpotifyStore = defineStore('spotify', () => {
   function getPlaylists(): void {
     axios({ method: 'get', url: '/api/spotify/playlists/' }).then((response: AxiosResponse): void => {
       const playlistResponse = response.data
-      playlists.value = playlistResponse.map(({ name, tracks, id }) => ({ name, tracks, id }))
+      playlists.value = playlistResponse
     })
   }
 

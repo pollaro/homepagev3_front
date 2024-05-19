@@ -28,6 +28,21 @@
 
   const decadePlaylistName: Ref<string> = ref('')
   const selectedDecade: Ref<Decade> = ref({ id: 99, name: '', lowerLimit: 0, upperLimit: 0 })
+  let decadePlaylist = []
+
+  function inDecade(track, decade) {
+    const releaseYear = parseInt(track.album.release_date.slice(0, 4))
+    return releaseYear >= decade.value.lowerLimit && releaseYear <= decade.value.upperLimit
+  }
+  function changeDecadePlaylist() {
+    decadePlaylist = []
+    props.playlist.tracks.forEach((track) => {
+      if (inDecade(track, selectedDecade)) {
+        decadePlaylist.push(track)
+      }
+    })
+    return decadePlaylist
+  }
 </script>
 
 <template>
@@ -35,7 +50,7 @@
     <div class="row">
       <div class="col-md-6">
         Decade:
-        <select v-model="selectedDecade">
+        <select v-model="selectedDecade" @change="changeDecadePlaylist">
           <option v-for="decade in decades" :value="decade.name" :key="decade.id">{{ decade.name }}</option>
         </select>
       </div>
@@ -53,12 +68,12 @@
           </tr>
         </thead>
         <tbody>
-          <tr v-for="(item, index) in songs" :key="item.id">
+          <tr v-for="(item, index) in decadePlaylist" :key="item.id">
             <td>{{ index }}</td>
             <td>{{ item.name }}</td>
             <td>{{ item.artist }}</td>
             <td></td>
-            <td></td>
+            <td><button class="btn btn-outline-danger" @click="decadePlaylist.splice(index, 1)">X</button></td>
           </tr>
         </tbody>
       </table>
