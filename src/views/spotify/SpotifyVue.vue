@@ -3,28 +3,27 @@
   import { useUserStore } from '@/stores/user'
   import { useSpotifyStore } from '@/stores/spotify'
   import { BListGroup, BListGroupItem } from 'bootstrap-vue-next'
-  import { onMounted, ref } from 'vue'
-  import type { Ref } from 'vue'
+  import { onMounted } from 'vue'
   import { useRouter } from 'vue-router'
 
   interface Tool {
     id: number
     name: string
+    displayName: string
     path: string
   }
 
   const userStore = useUserStore()
   const spotifyStore = useSpotifyStore()
-  const selectedPlaylist = ref()
-  const playlistType = ref('')
-  const selectedTool: Ref<Tool> = ref({ id: 0, name: '', path: '/' })
+  const selectedPlaylist = defineModel()
+  const playlistType = defineModel({ default: '' })
+  const selectedTool = defineModel({ default: { id: 0, name: '', path: '/' } })
   const router = useRouter()
-
   const tools: Tool[] = [
-    { id: 1, name: 'SetList FM', path: '/setlist' },
-    { id: 2, name: 'Genre', path: '/genre' },
-    { id: 3, name: 'Decade', path: '/decade' },
-    { id: 4, name: 'Manual', path: '/manual' }
+    { id: 1, displayName: 'SetList FM', name: 'SpotifySetlistTool', path: '/setlist' },
+    { id: 2, displayName: 'Genre', name: 'SpotifyGenreTool', path: '/genre' },
+    { id: 3, displayName: 'Decade', name: 'SpotifyDecadeTool', path: '/decade' },
+    { id: 4, displayName: 'Manual', name: 'SpotifyManualTool', path: '/manual' }
   ]
 
   function changeRoute(): void {
@@ -76,7 +75,7 @@
           Playlist Tool:
           <select v-model="selectedTool" @change="changeRoute()">
             <option v-for="tool in tools" :value="tool.path" :key="tool.id">
-              {{ tool.name }}
+              {{ tool.displayName }}
             </option>
           </select>
         </div>
@@ -103,11 +102,8 @@
           </select>
         </div>
       </div>
-      <router-view v-show="selectedTool" v-slot="{ Component }">
-        <component
-          :is="Component"
-          :playlist="`${playlistType} === 'savedSongs' ? 'Saved Tracks' : ${selectedPlaylist.name}`"
-        />
+      <router-view v-show="selectedTool">
+        <component :is="selectedTool.name" v-model:playlist="playlistType" />
       </router-view>
     </div>
   </div>

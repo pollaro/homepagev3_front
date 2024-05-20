@@ -1,14 +1,14 @@
 <script setup lang="ts">
-  import { ref } from 'vue';
-  import type { Ref } from 'vue';
-  import { useUserStore } from '@/stores/user';
+  import { ref } from 'vue'
+  import type { Ref } from 'vue'
+  import { useUserStore } from '@/stores/user'
 
-  const store = useUserStore();
-  const loading: Ref<boolean> = ref(false);
+  const store = useUserStore()
+  const loading: Ref<boolean> = ref(false)
   function handleSubmit() {
-    loading.value = true;
-    store.loginSpotify();
-    loading.value = false;
+    loading.value = true
+    store.loginSpotify()
+    loading.value = false
   }
 </script>
 
@@ -17,8 +17,9 @@
     <div class="col-md-6 mx-auto">
       <span>To use this feature, logging in to Spotify is required</span>
       <div class="card-container col-md-6 mx-auto">
-        <button @click="handleSubmit" class="btn btn-primary btn-block" :disabled="loading" />
-        Submit
+        <button type="button" class="btn btn-success" @click="handleSubmit" :disabled="loading">
+          Go To Spotify Login
+        </button>
         <span class="spinner-border spinner-border-sm" v-show="loading" />
       </div>
     </div>

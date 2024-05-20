@@ -1,10 +1,8 @@
 <script setup lang="ts">
-  import { ref, computed } from 'vue'
-  import type { Ref } from 'vue'
-
-  interface Props {
-    playlist?: any
-  }
+  import type { Playlist } from '@/interfaces/playlist'
+  import type { Track } from '@/interfaces/track'
+  import axios from 'axios'
+  import { useSpotifyStore } from '@/stores/spotify'
 
   interface Decade {
     id: number
@@ -13,7 +11,7 @@
     upperLimit: number
   }
 
-  const props = defineProps<Props>()
+  const spotifyStore = useSpotifyStore()
 
   const decades: Decade[] = [
     { id: 50, name: '50s', lowerLimit: 1950, upperLimit: 1959 },
@@ -25,23 +23,48 @@
     { id: 10, name: '10s', lowerLimit: 2010, upperLimit: 2019 },
     { id: 20, name: '20s', lowerLimit: 2020, upperLimit: 2029 }
   ]
+  const playlist = defineModel<Playlist | null>('playlist', { default: null })
+  const decadePlaylistName = defineModel<string>({ default: '' })
+  const decadePlaylistDescription = defineModel<string>({ default: '' })
+  const publicYesNo = defineModel<boolean>({ default: false })
+  const decadePlaylist = defineModel<Playlist | null>({ default: null })
+  const selectedDecade = defineModel<Decade>({ default: { id: 99, name: '', lowerLimit: 0, upperLimit: 0 } })
+  let error = { status: false, msg: '' }
 
-  const decadePlaylistName: Ref<string> = ref('')
-  const selectedDecade: Ref<Decade> = ref({ id: 99, name: '', lowerLimit: 0, upperLimit: 0 })
-  let decadePlaylist = []
-
-  function inDecade(track, decade) {
+  function inDecade(track: Track, decade: Decade): boolean {
     const releaseYear = parseInt(track.album.release_date.slice(0, 4))
-    return releaseYear >= decade.value.lowerLimit && releaseYear <= decade.value.upperLimit
+    return releaseYear >= decade.lowerLimit && releaseYear <= decade.upperLimit
   }
-  function changeDecadePlaylist() {
-    decadePlaylist = []
-    props.playlist.tracks.forEach((track) => {
-      if (inDecade(track, selectedDecade)) {
-        decadePlaylist.push(track)
+
+  function changeDecadePlaylist(): void {
+    if (decadePlaylist.value && 'tracks' in decadePlaylist.value) {
+      decadePlaylist.value.tracks = []
+      if (playlist.value) {
+        playlist.value.tracks.forEach((track: Track) => {
+          if (inDecade(track, selectedDecade.value)) {
+            decadePlaylist.value.tracks.push(track)
+          }
+        })
       }
-    })
-    return decadePlaylist
+    }
+  }
+
+  async function createPlaylist(): void {
+    if (decadePlaylistName.value == '' || decadePlaylistDescription.value == '') {
+      error.status = true
+      error.msg = 'Playlist name and description are required'
+    }
+    if (decadePlaylist.value) {
+      decadePlaylist.value.name = decadePlaylistName.value
+      decadePlaylist.value.description = decadePlaylistDescription.value
+      decadePlaylist.value.public = publicYesNo.value
+      decadePlaylist.value.id = spotifyStore.spotifyId
+      const response = await axios({
+        method: 'post',
+        data: JSON.stringify({ playlist: decadePlaylist }),
+        url: '/spotify/playlist/create'
+      })
+    }
   }
 </script>
 
@@ -54,9 +77,20 @@
           <option v-for="decade in decades" :value="decade.name" :key="decade.id">{{ decade.name }}</option>
         </select>
       </div>
-      <div class="col-md-6">New Playlist Name: <input v-model="decadePlaylistName" /></div>
+      <div class="col-md-6">
+        <span v-if="error.status" class="text-danger">{{ error.msg }}</span>
+        New Playlist Name: <input v-model="decadePlaylistName" /> Description:
+        <input v-model="decadePlaylistDescription" />
+        <input type="checkbox" class="btn-check" autocomplete="off" id="public" v-model="publicYesNo" /><label
+          class="btn btn-outline-secondary"
+          for="public"
+        >
+          Public
+        </label>
+        <button type="button" class="btn btn-secondary" @click="createPlaylist">Create</button>
+      </div>
     </div>
-    <div class="row">
+    <div class="row" v-show="decadePlaylist">
       <table class="table table-striped">
         <thead>
           <tr>
@@ -68,12 +102,16 @@
           </tr>
         </thead>
         <tbody>
-          <tr v-for="(item, index) in decadePlaylist" :key="item.id">
+          <tr v-for="(item, index) in decadePlaylist.tracks" :key="item.id">
             <td>{{ index }}</td>
             <td>{{ item.name }}</td>
-            <td>{{ item.artist }}</td>
+            <td>{{ item.artists[0] }}</td>
             <td></td>
-            <td><button class="btn btn-outline-danger" @click="decadePlaylist.splice(index, 1)">X</button></td>
+            <td>
+              <button type="button" class="btn btn-outline-danger" @click="decadePlaylist.tracks.splice(index, 1)">
+                X
+              </button>
+            </td>
           </tr>
         </tbody>
       </table>

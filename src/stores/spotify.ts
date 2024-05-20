@@ -11,37 +11,46 @@ export const useSpotifyStore = defineStore('spotify', () => {
   const topArtists: Ref<any[]> = ref([])
   const playlists: Ref<any[]> = ref([])
   const savedTracks: Ref<any[]> = ref([])
+  const spotifyId: Ref<string> = ref('')
 
-  function getUserInfo() {
-    return axios({ method: 'get', url: '/api/spotify/user/' }).then((response: AxiosResponse) => {
+  async function getUserInfo() {
+    try {
+      const response = await axios({ method: 'get', url: '/api/spotify/user/' })
       const { user, top_tracks, top_artists } = response.data
       spotifyName.value = user.display_name
+      spotifyId.value = user.id
       spotifyCountry.value = user.country
       topTracks.value = top_tracks.items
       topArtists.value = top_artists.items
-      return { spotifyName, spotifyCountry }
-    })
+      return { spotifyName, spotifyCountry, spotifyId }
+    } catch (error) {
+      console.error(error)
+    }
   }
 
-  function getPlaylists(): void {
-    axios({ method: 'get', url: '/api/spotify/playlists/' }).then((response: AxiosResponse): void => {
-      const playlistResponse = response.data
-      playlists.value = playlistResponse
-    })
+  async function getPlaylists(): Promise<void> {
+    try {
+      const response: AxiosResponse<any, any> = await axios({ method: 'get', url: '/api/spotify/playlists/' })
+      playlists.value = response.data
+    } catch (error) {
+      console.error(error)
+    }
   }
 
-  async function getSavedTracks() {
-    await getUserInfo()
-    const country = spotifyCountry.value
-    axios({ method: 'get', url: '/api/spotify/user/tracks/', params: { market: country } }).then(
-      (response: AxiosResponse): void => {
-        savedTracks.value = response.data
-      }
-    )
+  async function getSavedTracks(): Promise<void> {
+    try {
+      await getUserInfo()
+      const country: string = spotifyCountry.value
+      const response = await axios({ method: 'get', url: '/api/spotify/user/tracks/', params: { market: country } })
+      savedTracks.value = response.data
+    } catch (error) {
+      console.error(error)
+    }
   }
 
   return {
     spotifyName,
+    spotifyId,
     topTracks,
     topArtists,
     playlists,
