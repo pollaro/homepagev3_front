@@ -5,8 +5,12 @@ export const useUserStore = defineStore('user', () => {
   const spotifyLoggedIn = ref(false)
   const hblLoggedIn = ref(false)
 
-  function loginSpotify() {
+  async function loginSpotify() {
     return axios.get('/api/spotify/login/').then((response) => {
+      if (response.data.loggedIn !== undefined && response.data.loggedIn) {
+        spotifyLoggedIn.value = true
+        return spotifyLoggedIn
+      }
       const win = window.open(response.data)
       const checkWin = setInterval(() => {
         if (!win || !win.closed) {
@@ -14,6 +18,7 @@ export const useUserStore = defineStore('user', () => {
         }
         clearInterval(checkWin)
         spotifyLoggedIn.value = true
+        return spotifyLoggedIn
       }, 500)
     })
   }
@@ -21,11 +26,5 @@ export const useUserStore = defineStore('user', () => {
     spotifyLoggedIn.value = false
   }
 
-  function check(): void {
-    axios.get('/api/spotify/check/').then((response) => {
-      spotifyLoggedIn.value = response.data
-    })
-  }
-
-  return { spotifyLoggedIn, loginSpotify, logoutSpotify, check }
+  return { spotifyLoggedIn, loginSpotify, logoutSpotify }
 })

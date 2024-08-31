@@ -3,14 +3,18 @@ import { ref } from 'vue'
 import axios from 'axios'
 import type { AxiosResponse } from 'axios'
 import type { Ref } from 'vue'
+import type { Playlist } from '@/interfaces/playlist'
+import type { Track } from '@/interfaces/track'
+import type { Artist } from '@/interfaces/artist'
+import type { SpotifyResponseItem } from '@/interfaces/spotifyResponse'
 
 export const useSpotifyStore = defineStore('spotify', () => {
   const spotifyName: Ref<string> = ref('')
   const spotifyCountry: Ref<string> = ref('')
-  const topTracks: Ref<any[]> = ref([])
-  const topArtists: Ref<any[]> = ref([])
-  const playlists: Ref<any[]> = ref([])
-  const savedTracks: Ref<any[]> = ref([])
+  const topTracks: Ref<Track[]> = ref([])
+  const topArtists: Ref<Artist[]> = ref([])
+  const playlists: Ref<Playlist[]> = ref([])
+  const savedTracks: Ref<Track[]> = ref([])
   const spotifyId: Ref<string> = ref('')
 
   async function getUserInfo() {
@@ -42,7 +46,7 @@ export const useSpotifyStore = defineStore('spotify', () => {
       await getUserInfo()
       const country: string = spotifyCountry.value
       const response = await axios({ method: 'get', url: '/api/spotify/user/tracks/', params: { market: country } })
-      savedTracks.value = response.data
+      savedTracks.value = response.data.map((item: SpotifyResponseItem) => item.track)
     } catch (error) {
       console.error(error)
     }

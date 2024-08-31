@@ -3,8 +3,8 @@
   import { useUserStore } from '@/stores/user'
   import { useSpotifyStore } from '@/stores/spotify'
   import { BListGroup, BListGroupItem } from 'bootstrap-vue-next'
-  import { onMounted } from 'vue'
   import { useRouter } from 'vue-router'
+  import { ref } from 'vue'
 
   interface Tool {
     id: number
@@ -15,9 +15,9 @@
 
   const userStore = useUserStore()
   const spotifyStore = useSpotifyStore()
-  const selectedPlaylist = defineModel()
-  const playlistType = defineModel({ default: '' })
-  const selectedTool = defineModel({ default: { id: 0, name: '', path: '/' } })
+  const selectedPlaylist = ref('')
+  const playlistType = ref('')
+  const selectedTool = ref({ id: 0, name: '', path: '/' })
   const router = useRouter()
   const tools: Tool[] = [
     { id: 1, displayName: 'SetList FM', name: 'SpotifySetlistTool', path: '/setlist' },
@@ -30,9 +30,6 @@
     router.push({ path: `/spotify${selectedTool.value}` })
   }
 
-  onMounted(() => {
-    userStore.check()
-  })
   userStore.$subscribe((mutation, state) => {
     if (state.spotifyLoggedIn == true) {
       spotifyStore.getUserInfo()
@@ -47,7 +44,7 @@
     <SpotifyLogin v-if="!userStore.spotifyLoggedIn" />
     <div v-if="userStore.spotifyLoggedIn">
       <div class="row">
-        <div class="col-md-6 offset-md-3">Welcome to my Spotify Apps {{ spotifyStore.spotifyName }}</div>
+        <div class="col-md-6 offset-md-3">Welcome to my Spotify Apps, {{ spotifyStore.spotifyName }}</div>
       </div>
       <div class="row">
         <div class="col">
@@ -61,10 +58,10 @@
         <div class="col">
           <div class="topListsHeads">Top Songs last 12 months</div>
           <BListGroup>
-            <BListGroupItem v-for="(item, index) in spotifyStore.topTracks" :key="item.id" class="topListsItems">
-              {{ index + 1 }}. "<span class="topListsSongs">{{ item.name }}</span
+            <BListGroupItem v-for="(item, index) in spotifyStore.topTracks" :key="index" class="topListsItems">
+              {{ index + 1 }}. "<span class="topListsSongs">{{ item?.name }}</span
               >" by
-              <span v-for="childItem in item.artists" :key="childItem.id">{{ childItem.name }}</span>
+              <span v-for="childItem in item?.artists" :key="childItem.id">{{ childItem?.name }}</span>
             </BListGroupItem>
           </BListGroup>
         </div>
@@ -102,9 +99,7 @@
           </select>
         </div>
       </div>
-      <router-view v-show="selectedTool">
-        <component :is="selectedTool.name" v-model:playlist="playlistType" />
-      </router-view>
+      <router-view v-show="selectedTool" :playlistType="playlistType" :playlist="selectedPlaylist" />
     </div>
   </div>
 </template>

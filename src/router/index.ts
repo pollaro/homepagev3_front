@@ -34,32 +34,35 @@ const routes = [
     children: [
       {
         path: 'login',
-        name: 'spotify login',
+        name: 'SpotifyLogin',
         component: SpotifyLogin
       },
       {
         path: 'setlist',
-        name: 'spotify setlist tool',
+        name: 'SpotifySetlistTool',
         component: SpotifySetlistTool,
         props: true
       },
       {
         path: 'genre',
-        name: 'spotify genre tool',
+        name: 'SpotifyGenreTool',
         component: SpotifyGenreTool,
         props: true
       },
       {
         path: 'decade',
-        name: 'spotify decade tool',
+        name: 'SpotifyDecadeTool',
         component: SpotifyDecadeTool,
         props: true
       },
       {
         path: 'manual',
-        name: 'spotify manual tool',
+        name: 'SpotifyManualTool',
         component: SpotifyManualTool,
         props: true
+      },
+      {
+        path: 'setlist'
       }
     ]
   }

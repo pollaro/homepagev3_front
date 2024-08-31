@@ -3,11 +3,12 @@
   import type { Ref } from 'vue'
   import { useUserStore } from '@/stores/user'
 
-  const store = useUserStore()
+  const userStore = useUserStore()
   const loading: Ref<boolean> = ref(false)
+
   function handleSubmit() {
     loading.value = true
-    store.loginSpotify()
+    userStore.loginSpotify()
     loading.value = false
   }
 </script>
