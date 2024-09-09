@@ -2,7 +2,7 @@ interface Setlist {
   artist?: SetlistArtist
   venue?: SetlistVenue
   tour?: object
-  set?: Set[]
+  sets?: { set: Set[] }
   info?: string
   url?: string
   id?: string

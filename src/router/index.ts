@@ -5,7 +5,6 @@ import ContactComponent from '@/components/ContactComponent.vue'
 import SpotifyVue from '@/views/spotify/SpotifyVue.vue'
 import SpotifyLogin from '@/components/spotify/SpotifyLogin.vue'
 import SpotifySetlistTool from '@/components/spotify/SpotifySetlistTool.vue'
-import SpotifyGenreTool from '@/components/spotify/SpotifyGenreTool.vue'
 import SpotifyDecadeTool from '@/components/spotify/SpotifyDecadeTool.vue'
 import SpotifyManualTool from '@/components/spotify/SpotifyManualTool.vue'
 
@@ -41,12 +40,6 @@ const routes = [
         path: 'setlist',
         name: 'SpotifySetlistTool',
         component: SpotifySetlistTool,
-        props: true
-      },
-      {
-        path: 'genre',
-        name: 'SpotifyGenreTool',
-        component: SpotifyGenreTool,
         props: true
       },
       {

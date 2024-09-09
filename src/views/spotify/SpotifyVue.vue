@@ -4,7 +4,7 @@
   import { useSpotifyStore } from '@/stores/spotify'
   import { BListGroup, BListGroupItem } from 'bootstrap-vue-next'
   import { useRouter } from 'vue-router'
-  import { ref } from 'vue'
+  import { reactive, ref } from 'vue'
 
   interface Tool {
     id: number
@@ -17,13 +17,12 @@
   const spotifyStore = useSpotifyStore()
   const selectedPlaylist = ref('')
   const playlistType = ref('')
-  const selectedTool = ref({ id: 0, name: '', path: '/' })
+  const selectedTool = ref('/')
   const router = useRouter()
   const tools: Tool[] = [
     { id: 1, displayName: 'SetList FM', name: 'SpotifySetlistTool', path: '/setlist' },
-    { id: 2, displayName: 'Genre', name: 'SpotifyGenreTool', path: '/genre' },
-    { id: 3, displayName: 'Decade', name: 'SpotifyDecadeTool', path: '/decade' },
-    { id: 4, displayName: 'Manual', name: 'SpotifyManualTool', path: '/manual' }
+    { id: 2, displayName: 'Decade', name: 'SpotifyDecadeTool', path: '/decade' },
+    { id: 3, displayName: 'Manual', name: 'SpotifyManualTool', path: '/manual' }
   ]
 
   function changeRoute(): void {
@@ -70,7 +69,7 @@
       <div class="row">
         <div class="col-md-6">
           Playlist Tool:
-          <select v-model="selectedTool" @change="changeRoute()">
+          <select v-model="selectedTool" @change="changeRoute">
             <option v-for="tool in tools" :value="tool.path" :key="tool.id">
               {{ tool.displayName }}
             </option>
@@ -78,7 +77,7 @@
         </div>
       </div>
       <div class="row">
-        <div class="col-md-6">
+        <div class="col-md-6" v-show="selectedTool == '/decade' || selectedTool == '/manual'">
           Source playlist:
           <select v-model="playlistType">
             <option value="playlist">Playlist</option>
@@ -99,7 +98,7 @@
           </select>
         </div>
       </div>
-      <router-view v-show="selectedTool" :playlistType="playlistType" :playlist="selectedPlaylist" />
+      <router-view v-show="selectedTool != '/'" :playlistType="playlistType" :playlist="selectedPlaylist" />
     </div>
   </div>
 </template>

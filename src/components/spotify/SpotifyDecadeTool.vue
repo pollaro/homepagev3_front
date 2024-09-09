@@ -44,7 +44,6 @@
         sourcePlaylistTracks = sourcePlaylist.tracks
       }
     } else {
-      console.error('Playlist not found.')
       return { tracks: null, name: '', description: '', public: '', id: '' }
     }
     const decadeTracks: Track[] = []
@@ -85,7 +84,7 @@
     <div class="row">
       <div class="col-md-6">
         Decade:
-        <select v-model.lazy="selectedDecade">
+        <select v-model="selectedDecade">
           <option v-for="decade in decades" :value="decade" :key="decade.id">{{ decade.name }}</option>
         </select>
       </div>
