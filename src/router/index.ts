@@ -32,7 +32,7 @@ const routes = [
     component: SpotifyVue,
     children: [
       {
-        path: 'login',
+        path: '/login',
         name: 'SpotifyLogin',
         component: SpotifyLogin
       },

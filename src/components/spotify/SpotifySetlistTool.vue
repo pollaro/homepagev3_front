@@ -3,12 +3,18 @@
   import type { Track } from '@/interfaces/track'
   import axios from 'axios'
   import type { Setlist, SetlistArtist, SetlistSong } from '@/interfaces/setlist'
+  import { useSpotifyStore } from '@/stores/spotify'
 
   const concertUrl = ref<string>('')
   let concertSetlist = reactive<Setlist>({} as Setlist)
   let playlistTracks = reactive<Track[]>([])
   let songResults = reactive<{ [key: string]: Track[] }>({})
   const concertPlaylistName = ref<string>('')
+  const concertPlaylistDescription = ref<string>('')
+  const publicYesNo = ref<boolean>(false)
+  let error = { status: false, msg: '' }
+
+  const spotifyStore = useSpotifyStore()
 
   const concertPlaylist = computed(() => {
     return { tracks: playlistTracks, name: '', description: '', public: false, id: '' }
@@ -55,6 +61,28 @@
     })
     songResults[songIndex] = response.data
   }
+
+  async function createPlaylist(): Promise<void> {
+    if (concertPlaylistName.value == '' || concertPlaylistDescription.value == '') {
+      error.status = true
+      error.msg = 'Playlist name and description are required'
+    }
+    if (concertPlaylist.value) {
+      concertPlaylist.value.name = concertPlaylistName.value
+      concertPlaylist.value.description = concertPlaylistDescription.value
+      concertPlaylist.value.public = publicYesNo.value
+      concertPlaylist.value.id = spotifyStore.spotifyId
+      const response = await axios({
+        method: 'post',
+        data: { playlist: concertPlaylist.value },
+        url: '/api/spotify/playlists/'
+      })
+    }
+  }
+
+  function moveItem(from: number, to: number, array_in: Track[]): void {
+    array_in.splice(to, 0, array_in.splice(from, 1)[0])
+  }
 </script>
 
 <template>
@@ -64,7 +92,87 @@
         Setlist concert url: <input v-model="concertUrl" placeholder="Enter url" autocomplete="off" />
         <button @click="getConcertSetlist">Get Setlist</button>
       </div>
-      <div class="col-md-6">New Playlist Name: <input v-model="concertPlaylistName" placeholder="" /></div>
+      <div class="col-md-6">
+        <span>New Playlist Name: <input v-model="concertPlaylistName" placeholder="" /></span>
+        <span class="row">Description: <input class="col-md-4" v-model="concertPlaylistDescription" /></span>
+        <div class="row">
+          <div class="col-md-2 offset-md-1">
+            <input type="radio" class="btn-check" name="public" id="public" :value="true" v-model="publicYesNo" /><label
+              class="btn btn-outline-secondary"
+              for="public"
+              >Public
+            </label>
+          </div>
+          <div class="col-md-2">
+            <input
+              type="radio"
+              class="btn-check"
+              id="private"
+              name="private"
+              :value="false"
+              v-model="publicYesNo"
+              checked
+            /><label class="btn btn-outline-secondary" for="private">Private </label>
+          </div>
+          <div class="row">
+            <div class="col-md-2 offset-md-2">
+              <button type="button" class="btn btn-secondary" @click="createPlaylist">Create</button>
+            </div>
+          </div>
+        </div>
+        <div class="row">
+          <div
+            class="col-md-6"
+            v-show="concertPlaylist.tracks.length > 0"
+            v-if="concertPlaylist.tracks && concertPlaylist.tracks.length > 0"
+          >
+            <table class="table table-striped">
+              <thead>
+                <tr>
+                  <th scope="col">#</th>
+                  <th scope="col">Name</th>
+                  <th scope="col">Artist</th>
+                  <th scope="col">Move</th>
+                  <th scope="col">Remove</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr v-for="(item, index) in concertPlaylist.tracks" :key="item.id">
+                  <td>{{ index + 1 }}</td>
+                  <td>{{ item.name }}</td>
+                  <td>{{ concertSetlist.artist?.name }}</td>
+                  <td>
+                    <button
+                      type="button"
+                      class="btn btn-secondary"
+                      v-if="index > 0"
+                      @click="moveItem(index, index - 1, playlistTracks)"
+                    >
+                      <i class="bi bi-arrow-up" /></button
+                    ><button
+                      type="button"
+                      class="btn btn-secondary"
+                      v-if="index < playlistTracks.length - 1"
+                      @click="moveItem(index, index + 1, playlistTracks)"
+                    >
+                      <i class="bi bi-arrow-down" />
+                    </button>
+                  </td>
+                  <td>
+                    <button
+                      type="button"
+                      class="btn btn-outline-danger"
+                      @click="concertPlaylist.tracks.splice(index, 1)"
+                    >
+                      X
+                    </button>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
     </div>
     <div class="row">
       <div class="col-md-12">
