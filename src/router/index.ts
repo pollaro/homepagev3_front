@@ -7,6 +7,10 @@ import SpotifyLogin from '@/components/spotify/SpotifyLogin.vue'
 import SpotifySetlistTool from '@/components/spotify/SpotifySetlistTool.vue'
 import SpotifyDecadeTool from '@/components/spotify/SpotifyDecadeTool.vue'
 import SpotifyManualTool from '@/components/spotify/SpotifyManualTool.vue'
+import HblHome from '@/views/hbl/HblHome.vue'
+import HblLogin from '@/components/hbl/HblLogin.vue'
+import HblPreseason from '@/components/hbl/HblPreseason.vue'
+import HblPostseason from '@/components/hbl/HblPostseason.vue'
 
 const routes = [
   {
@@ -28,7 +32,7 @@ const routes = [
   },
   {
     path: '/spotify',
-    name: 'spotify home',
+    name: 'SpotifyHome',
     component: SpotifyVue,
     children: [
       {
@@ -56,6 +60,28 @@ const routes = [
       },
       {
         path: 'setlist'
+      }
+    ]
+  },
+  {
+    path: '/hbl',
+    name: 'HblHome',
+    component: HblHome,
+    children: [
+      {
+        path: '/login',
+        name: 'HblLogin',
+        component: HblLogin
+      },
+      {
+        path: '/preseason',
+        name: 'HblPreseason',
+        component: HblPreseason
+      },
+      {
+        path: '/postseason',
+        name: 'HblPostseason',
+        component: HblPostseason
       }
     ]
   }

@@ -1,6 +1,6 @@
 <script setup lang="ts">
   import SpotifyLogin from '@/components/spotify/SpotifyLogin.vue'
-  import { useUserStore } from '@/stores/user'
+  import { useUserStore } from '@/stores/spotifyUser'
   import { useSpotifyStore } from '@/stores/spotify'
   import { BListGroup, BListGroupItem } from 'bootstrap-vue-next'
   import { useRouter } from 'vue-router'

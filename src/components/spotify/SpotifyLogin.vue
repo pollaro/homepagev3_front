@@ -1,12 +1,12 @@
 <script setup lang="ts">
   import { ref } from 'vue'
   import type { Ref } from 'vue'
-  import { useUserStore } from '@/stores/user'
+  import { useUserStore } from '@/stores/spotifyUser'
 
   const userStore = useUserStore()
   const loading: Ref<boolean> = ref(false)
 
-  function handleSubmit() {
+  function handleSubmit(): void {
     loading.value = true
     userStore.loginSpotify()
     loading.value = false
