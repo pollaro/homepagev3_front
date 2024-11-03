@@ -1,26 +1,30 @@
 import { defineStore } from 'pinia'
 import { type Ref, ref } from 'vue'
-import axios from 'axios'
+import axios, { type AxiosResponse } from 'axios'
 export const useUserStore = defineStore('spotifyUser', () => {
   const spotifyLoggedIn: Ref<boolean> = ref(false)
 
   async function loginSpotify(): Promise<Ref<boolean> | undefined> {
-    return axios.get('/api/spotify/login/').then((response) => {
-      if (response.data.loggedIn !== undefined && response.data.loggedIn) {
-        spotifyLoggedIn.value = true
-        return spotifyLoggedIn
+    const response: AxiosResponse = await axios.get('/api/spotify/login/')
+    if (response.data.loggedIn !== undefined && response.data.loggedIn) {
+      spotifyLoggedIn.value = true
+      return spotifyLoggedIn
+    }
+    const win: Window | null = window.open(response.data)
+    setInterval(async (): Promise<Ref<boolean> | undefined> => {
+      if (!win || !win.closed) {
+        return
       }
-      const win: Window | null = window.open(response.data)
-      const checkWin: number = setInterval(() => {
-        if (!win || !win.closed) {
-          return
-        }
-        clearInterval(checkWin)
-        spotifyLoggedIn.value = true
-        return spotifyLoggedIn
-      }, 500)
-    })
+      const checkResponse: AxiosResponse = await axios.get('/api/spotify/check/')
+      if (checkResponse.data.loggedIn !== undefined) {
+        spotifyLoggedIn.value = checkResponse.data.loggedIn
+      } else {
+        spotifyLoggedIn.value = false
+      }
+      return spotifyLoggedIn
+    }, 500)
   }
+
   function logoutSpotify(): void {
     spotifyLoggedIn.value = false
   }

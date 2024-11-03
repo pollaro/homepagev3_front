@@ -1,48 +1,47 @@
 import { defineStore } from 'pinia'
 import { computed, type ComputedRef, type Ref, ref } from 'vue'
-import axios from 'axios'
+import axios, { type AxiosResponse } from 'axios'
 
 export const useHBLStore = defineStore('hbl', () => {
-  const loggedIn: Ref<boolean> = ref(false)
+  const hblLoggedIn: Ref<boolean> = ref(false)
   const user: Ref<string> = ref('')
-  const jimOrGreg: ComputedRef<boolean> = computed(() => {
-    const gregGUID: string = 'IGC7L7N4I3ZVMIT24STE44IIMQ'
-    const jimGUID: string = 'AI7PH5BPPZJCLQO5UQE3XM3Z6A'
-    return [gregGUID, jimGUID].includes(user.value)
-  })
+  const jimOrGreg: Ref<boolean> = ref(false)
 
   async function loginHBL(): Promise<Ref<boolean> | undefined> {
-    return axios.get('/api/hbl/login/').then((response) => {
-      if (response.data.loggedIn !== undefined && response.data.loggedIn) {
-        loggedIn.value = true
-        return loggedIn
+    const response: AxiosResponse = await axios.get('/api/hbl/login/')
+    if (response.data.loggedIn !== undefined && response.data.loggedIn) {
+      hblLoggedIn.value = true
+      return hblLoggedIn
+    }
+    const win: Window | null = window.open(response.data)
+    setInterval(async (): Promise<Ref<boolean> | undefined> => {
+      if (!win || !win.closed) {
+        return
       }
-      const win: Window | null = window.open(response.data)
-      const checkWin: number = setInterval(() => {
-        if (!win || !win.closed) {
-          return
-        }
-        clearInterval(checkWin)
-        loggedIn.value = true
-        return loggedIn
-      }, 500)
-    })
+      await checkLoggedIn()
+    }, 500)
   }
 
   function logoutHBL(): void {
-    loggedIn.value = false
+    hblLoggedIn.value = false
   }
 
-  async function checkLoggedIn(): Promise<{ loggedIn: Ref<boolean>; user: Ref<String> | null }> {
-    return axios.get('/api/hbl/checkLoggedIn').then((response) => {
-      if (response.data.loggedIn !== undefined) {
-        loggedIn.value = response.data.loggedIn
-        user.value = response.data.user
-        return { loggedIn: loggedIn, user: user }
-      }
-      loggedIn.value = false
-      return { loggedIn: loggedIn, user: null }
-    })
+  async function checkLoggedIn(): Promise<{
+    loggedIn: Ref<boolean>
+    user: Ref<String> | null
+    jimOrGreg: Ref<boolean>
+  }> {
+    const response: AxiosResponse = await axios.get('/api/hbl/check/')
+    if (response.data.loggedIn !== undefined) {
+      hblLoggedIn.value = response.data.loggedIn
+      jimOrGreg.value = response.data.jimOrGreg
+      user.value = response.data.user
+      return { loggedIn: hblLoggedIn, user: user, jimOrGreg: jimOrGreg }
+    }
+    hblLoggedIn.value = false
+    jimOrGreg.value = false
+    return { loggedIn: hblLoggedIn, user: null, jimOrGreg: jimOrGreg }
   }
-  return { loggedIn, loginHBL, logoutHBL, checkLoggedIn, jimOrGreg }
+
+  return { hblLoggedIn, loginHBL, logoutHBL, checkLoggedIn, jimOrGreg }
 })

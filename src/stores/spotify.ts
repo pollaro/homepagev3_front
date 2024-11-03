@@ -17,9 +17,11 @@ export const useSpotifyStore = defineStore('spotify', () => {
   const savedTracks: Ref<Track[]> = ref([])
   const spotifyId: Ref<string> = ref('')
 
-  async function getUserInfo() {
+  async function getUserInfo(): Promise<
+    { spotifyName: Ref<string>; spotifyCountry: Ref<string>; spotifyId: Ref<string> } | undefined
+  > {
     try {
-      const response = await axios({ method: 'get', url: '/api/spotify/user/' })
+      const response: AxiosResponse = await axios({ method: 'get', url: '/api/spotify/user/' })
       const { user, top_tracks, top_artists } = response.data
       spotifyName.value = user.display_name
       spotifyId.value = user.id
@@ -34,7 +36,7 @@ export const useSpotifyStore = defineStore('spotify', () => {
 
   async function getPlaylists(): Promise<void> {
     try {
-      const response: AxiosResponse<any, any> = await axios({ method: 'get', url: '/api/spotify/playlists/' })
+      const response: AxiosResponse = await axios({ method: 'get', url: '/api/spotify/playlists/' })
       playlists.value = response.data
     } catch (error) {
       console.error(error)
@@ -45,7 +47,11 @@ export const useSpotifyStore = defineStore('spotify', () => {
     try {
       await getUserInfo()
       const country: string = spotifyCountry.value
-      const response = await axios({ method: 'get', url: '/api/spotify/user/tracks/', params: { market: country } })
+      const response: AxiosResponse = await axios({
+        method: 'get',
+        url: '/api/spotify/user/tracks/',
+        params: { market: country }
+      })
       savedTracks.value = response.data.map((item: SpotifyResponseItem) => item.track)
     } catch (error) {
       console.error(error)

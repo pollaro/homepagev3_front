@@ -4,7 +4,7 @@
   import { useSpotifyStore } from '@/stores/spotify'
   import { BListGroup, BListGroupItem } from 'bootstrap-vue-next'
   import { useRouter } from 'vue-router'
-  import { reactive, ref } from 'vue'
+  import { ref } from 'vue'
 
   interface Tool {
     id: number

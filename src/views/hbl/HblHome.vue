@@ -12,8 +12,8 @@
 
 <template>
   <div class="container">
-    <HblLogin v-if="!hblStore.loggedIn" />
-    <div v-if="hblStore.loggedIn">
+    <HblLogin v-if="!hblStore.hblLoggedIn" />
+    <div v-if="hblStore.hblLoggedIn">
       <div class="row justify-content-center">
         <div class="h2 col-6">Huckleberry Baseball League</div>
       </div>
