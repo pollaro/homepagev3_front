@@ -4,6 +4,7 @@
   import { useSpotifyStore } from '@/stores/spotify'
   import { storeToRefs } from 'pinia'
   import { computed, ref } from 'vue'
+  import SpotifyPlaylistCreate from '@/components/spotify/SpotifyPlaylistCreate.vue'
 
   interface Decade {
     id: number
@@ -60,7 +61,7 @@
     return { tracks: decadeTracks, name: '', description: '', public: false, id: '' }
   })
 
-  async function createPlaylist(): Promise<void> {
+  async function createPlaylistCallback(): Promise<void> {
     if (decadePlaylistName.value == '' || decadePlaylistDescription.value == '') {
       error.status = true
       error.msg = 'Playlist name and description are required'
@@ -80,76 +81,63 @@
 </script>
 
 <template>
-  <div class="container">
-    <div class="row">
-      <div class="col-md-6">
-        Decade:
-        <select v-model="selectedDecade">
-          <option v-for="decade in decades" :value="decade" :key="decade.id">{{ decade.name }}</option>
-        </select>
-      </div>
-      <div class="col-md-6">
-        <span v-show="error.status" class="row text-danger">{{ error.msg }}</span>
-        <span class="row">New Playlist Name: <input class="col-md-4" v-model="decadePlaylistName" /></span>
-        <span class="row">Description: <input class="col-md-4" v-model="decadePlaylistDescription" /></span>
-        <div class="row">
-          <div class="col-md-2 offset-md-1">
-            <input type="radio" class="btn-check" name="public" id="public" :value="true" v-model="publicYesNo" /><label
-              class="btn btn-outline-secondary"
-              for="public"
-              >Public
-            </label>
-          </div>
-          <div class="col-md-2">
-            <input
-              type="radio"
-              class="btn-check"
-              id="private"
-              name="private"
-              :value="false"
-              v-model="publicYesNo"
-              checked
-            /><label class="btn btn-outline-secondary" for="private">Private </label>
-          </div>
-        </div>
-        <div class="row col-md-2 offset-md-2">
-          <button type="button" class="btn btn-secondary" @click="createPlaylist">Create</button>
-        </div>
-      </div>
-      <div class="row">
-        <div
-          class="col-md-6"
-          v-show="decadePlaylist.tracks.length > 0"
-          v-if="decadePlaylist.tracks !== null && decadePlaylist.tracks && decadePlaylist.tracks.length > 0"
-        >
-          <table class="table table-striped">
-            <thead>
-              <tr>
-                <th scope="col">#</th>
-                <th scope="col">Name</th>
-                <th scope="col">Artist</th>
-                <th scope="col">Move</th>
-                <th scope="col">Remove</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr v-for="(item, index) in decadePlaylist.tracks" :key="item.id">
-                <td>{{ index + 1 }}</td>
-                <td>{{ item.name }}</td>
-                <td>{{ item.artists[0].name }}</td>
-                <td></td>
-                <td>
-                  <button type="button" class="btn btn-outline-danger" @click="decadePlaylist.tracks.splice(index, 1)">
-                    X
-                  </button>
-                </td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
+  <!--  <div class="container">-->
+  <div class="row">
+    <div class="col-md-6 text-center">
+      <label for="selectedDecade">Decade:</label>
+      <select v-model="selectedDecade" id="selectedDecade">
+        <option v-for="decade in decades" :value="decade" :key="decade.id">{{ decade.name }}</option>
+      </select>
+    </div>
+    <div class="col-md-6">
+      <SpotifyPlaylistCreate
+        v-model:playlist-description="decadePlaylistDescription"
+        v-model:playlist-name="decadePlaylistName"
+        v-model:public-yes-no="publicYesNo"
+        @create-playlist.once="createPlaylistCallback"
+      />
+    </div>
+    <div class="row mt-1">
+      <div
+        class="col-md-6"
+        v-show="decadePlaylist.tracks.length > 0"
+        v-if="decadePlaylist.tracks !== null && decadePlaylist.tracks && decadePlaylist.tracks.length > 0"
+      >
+        <table class="table table-striped">
+          <thead>
+            <tr>
+              <th scope="col">#</th>
+              <th scope="col">Name</th>
+              <th scope="col">Artist</th>
+              <th scope="col">Move</th>
+              <th scope="col">Remove</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr v-for="(item, index) in decadePlaylist.tracks" :key="item.id">
+              <td>{{ index + 1 }}</td>
+              <td>{{ item.name }}</td>
+              <td>{{ item.artists[0].name }}</td>
+              <td></td>
+              <td>
+                <button type="button" class="btn btn-outline-danger" @click="decadePlaylist.tracks.splice(index, 1)">
+                  X
+                </button>
+              </td>
+            </tr>
+          </tbody>
+        </table>
       </div>
     </div>
   </div>
+  <!--  </div>-->
 </template>
 
-<style scoped></style>
+<style scoped>
+  select,
+  input,
+  label,
+  button {
+    margin-left: 0.5%;
+  }
+</style>

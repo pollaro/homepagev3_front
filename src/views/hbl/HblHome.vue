@@ -23,10 +23,10 @@
           <li class="nav-item"><router-link class="nav-link" to="/hbl/roster">Rosters</router-link></li>
           <li class="nav-item"><router-link class="nav-link" to="/hbl/prospects">Prospects</router-link></li>
           <li class="nav-item" v-if="hblStore.jimOrGreg">
-            <router-link class="nav-link" to="/hbl/preseason">Preseason</router-link>
+            <router-link class="nav-link" to="/preseason">Preseason</router-link>
           </li>
           <li class="nav-item" v-if="hblStore.jimOrGreg">
-            <router-link class="nav-link" to="/hbl/postseason">Postseason</router-link>
+            <router-link class="nav-link" to="/postseason">Postseason</router-link>
           </li>
         </ul>
       </nav>
