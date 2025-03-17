@@ -49,12 +49,12 @@
       </div>
       <!--      Top lists area-->
       <div class="row mt-3 mb-3">
-        <div class="col">
+        <div class="col text-end">
           <div class="topListsHeads">
             <h4>Top Artists last 12 months</h4>
           </div>
-          <ol>
-            <li v-for="item in spotifyStore.topArtists" :key="item.id" class="topListsItems">
+          <ol class="list-group list-group-numbered">
+            <li v-for="item in spotifyStore.topArtists" :key="item.id" class="topListsItems list-group-item p-0">
               {{ item.name }}
             </li>
           </ol>

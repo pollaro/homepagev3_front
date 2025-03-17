@@ -1,9 +1,11 @@
 <script setup lang="ts">
+  import { ref } from 'vue'
+
   defineProps(['error'])
 
-  const playlistDescription = defineModel('playlistDescription')
-  const playlistName = defineModel('playlistName')
-  const publicYesNo = defineModel('publicYesNo')
+  const playlistDescription = ref<string>('')
+  const playlistName = ref<string>('')
+  const publicYesNo = ref<boolean>(false)
 </script>
 
 <template>
@@ -40,9 +42,22 @@
   </div>
   <div class="row mt-1">
     <div class="offset-md-3 pr-1">
-      <button type="button" class="btn btn-secondary" @click="$emit('createPlaylist')">Create</button>
+      <button
+        type="button"
+        class="btn btn-secondary"
+        @click="$emit('createPlaylist', 'playlistName', 'playlistDescription', 'publicYesNo')"
+      >
+        Create
+      </button>
     </div>
   </div>
 </template>
 
-<style scoped></style>
+<style scoped>
+  select,
+  input,
+  label,
+  button {
+    margin-left: 0.5%;
+  }
+</style>

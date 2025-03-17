@@ -4,14 +4,12 @@
   import axios from 'axios'
   import type { Setlist, SetlistArtist, SetlistSong } from '@/interfaces/setlist'
   import { useSpotifyStore } from '@/stores/spotify'
+  import SpotifyPlaylistCreate from '@/components/spotify/SpotifyPlaylistCreate.vue'
 
   const concertUrl = ref<string>('')
   let concertSetlist = reactive<Setlist>({} as Setlist)
   let playlistTracks = reactive<Track[]>([])
   let songResults = reactive<{ [key: string]: Track[] }>({})
-  const concertPlaylistName = ref<string>('')
-  const concertPlaylistDescription = ref<string>('')
-  const publicYesNo = ref<boolean>(false)
   let error = { status: false, msg: '' }
 
   const spotifyStore = useSpotifyStore()
@@ -62,15 +60,19 @@
     songResults[songIndex] = response.data
   }
 
-  async function createPlaylist(): Promise<void> {
-    if (concertPlaylistName.value == '' || concertPlaylistDescription.value == '') {
+  async function createPlaylistCallback(
+    concertPlaylistName: string,
+    concertPlaylistDescription: string,
+    publicYesNo: boolean
+  ): Promise<void> {
+    if (concertPlaylistName == '' || concertPlaylistDescription == '') {
       error.status = true
       error.msg = 'Playlist name and description are required'
     }
     if (concertPlaylist.value) {
-      concertPlaylist.value.name = concertPlaylistName.value
-      concertPlaylist.value.description = concertPlaylistDescription.value
-      concertPlaylist.value.public = publicYesNo.value
+      concertPlaylist.value.name = concertPlaylistName
+      concertPlaylist.value.description = concertPlaylistDescription
+      concertPlaylist.value.public = publicYesNo
       concertPlaylist.value.id = spotifyStore.spotifyId
       const response = await axios({
         method: 'post',
@@ -93,33 +95,8 @@
         <button @click="getConcertSetlist">Get Setlist</button>
       </div>
       <div class="col-md-6">
-        <span>New Playlist Name: <input v-model="concertPlaylistName" placeholder="" /></span>
-        <span class="row">Description: <input class="col-md-4" v-model="concertPlaylistDescription" /></span>
-        <div class="row">
-          <div class="col-md-2 offset-md-1">
-            <input type="radio" class="btn-check" name="public" id="public" :value="true" v-model="publicYesNo" /><label
-              class="btn btn-outline-secondary"
-              for="public"
-              >Public
-            </label>
-          </div>
-          <div class="col-md-2">
-            <input
-              type="radio"
-              class="btn-check"
-              id="private"
-              name="private"
-              :value="false"
-              v-model="publicYesNo"
-              checked
-            /><label class="btn btn-outline-secondary" for="private">Private </label>
-          </div>
-          <div class="row">
-            <div class="col-md-2 offset-md-2">
-              <button type="button" class="btn btn-secondary" @click="createPlaylist">Create</button>
-            </div>
-          </div>
-        </div>
+        <SpotifyPlaylistCreate :error="error" @create-playlist.once="createPlaylistCallback" />
+
         <div class="row">
           <div
             class="col-md-6"

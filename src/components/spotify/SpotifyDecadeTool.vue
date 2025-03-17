@@ -5,6 +5,7 @@
   import { storeToRefs } from 'pinia'
   import { computed, ref } from 'vue'
   import SpotifyPlaylistCreate from '@/components/spotify/SpotifyPlaylistCreate.vue'
+  import SpotifyPlaylistTable from '@/components/spotify/SpotifyPlaylistTable.vue'
 
   interface Decade {
     id: number
@@ -30,9 +31,6 @@
     { id: 20, name: '20s', lowerLimit: 2020, upperLimit: 2029 }
   ]
 
-  const decadePlaylistName = ref<string>('')
-  const decadePlaylistDescription = ref<string>('')
-  const publicYesNo = ref<boolean>(false)
   const selectedDecade = ref<Decade>({ id: 0, name: '', lowerLimit: 0, upperLimit: 0 })
 
   const decadePlaylist = computed(() => {
@@ -61,15 +59,19 @@
     return { tracks: decadeTracks, name: '', description: '', public: false, id: '' }
   })
 
-  async function createPlaylistCallback(): Promise<void> {
-    if (decadePlaylistName.value == '' || decadePlaylistDescription.value == '') {
+  async function createPlaylistCallback(
+    decadePlaylistName: string,
+    decadePlaylistDescription: string,
+    publicYesNo: boolean
+  ): Promise<void> {
+    if (decadePlaylistName == '' || decadePlaylistDescription == '') {
       error.status = true
       error.msg = 'Playlist name and description are required'
     }
     if (decadePlaylist.value) {
-      decadePlaylist.value.name = decadePlaylistName.value
-      decadePlaylist.value.description = decadePlaylistDescription.value
-      decadePlaylist.value.public = publicYesNo.value
+      decadePlaylist.value.name = decadePlaylistName
+      decadePlaylist.value.description = decadePlaylistDescription
+      decadePlaylist.value.public = publicYesNo
       decadePlaylist.value.id = spotifyStore.spotifyId
       const response = await axios({
         method: 'post',
@@ -90,54 +92,12 @@
       </select>
     </div>
     <div class="col-md-6">
-      <SpotifyPlaylistCreate
-        v-model:playlist-description="decadePlaylistDescription"
-        v-model:playlist-name="decadePlaylistName"
-        v-model:public-yes-no="publicYesNo"
-        @create-playlist.once="createPlaylistCallback"
-      />
+      <SpotifyPlaylistCreate :error="error" @create-playlist.once="createPlaylistCallback" />
     </div>
     <div class="row mt-1">
-      <div
-        class="col-md-6"
-        v-show="decadePlaylist.tracks.length > 0"
-        v-if="decadePlaylist.tracks !== null && decadePlaylist.tracks && decadePlaylist.tracks.length > 0"
-      >
-        <table class="table table-striped">
-          <thead>
-            <tr>
-              <th scope="col">#</th>
-              <th scope="col">Name</th>
-              <th scope="col">Artist</th>
-              <th scope="col">Move</th>
-              <th scope="col">Remove</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr v-for="(item, index) in decadePlaylist.tracks" :key="item.id">
-              <td>{{ index + 1 }}</td>
-              <td>{{ item.name }}</td>
-              <td>{{ item.artists[0].name }}</td>
-              <td></td>
-              <td>
-                <button type="button" class="btn btn-outline-danger" @click="decadePlaylist.tracks.splice(index, 1)">
-                  X
-                </button>
-              </td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
+      <SpotifyPlaylistTable playlist="decadePlaylist.tracks" />
     </div>
   </div>
-  <!--  </div>-->
 </template>
 
-<style scoped>
-  select,
-  input,
-  label,
-  button {
-    margin-left: 0.5%;
-  }
-</style>
+<style scoped></style>
