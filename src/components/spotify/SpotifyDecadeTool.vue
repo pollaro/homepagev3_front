@@ -3,7 +3,7 @@
   import axios from 'axios'
   import { useSpotifyStore } from '@/stores/spotify'
   import { storeToRefs } from 'pinia'
-  import { computed, ref } from 'vue'
+  import { ref, watch } from 'vue'
   import SpotifyPlaylistCreate from '@/components/spotify/SpotifyPlaylistCreate.vue'
   import SpotifyPlaylistTable from '@/components/spotify/SpotifyPlaylistTable.vue'
 
@@ -13,13 +13,20 @@
     lowerLimit: number
     upperLimit: number
   }
+  interface decadePlayList {
+    tracks: Track[] | null
+    name: string
+    description: string
+    public: boolean
+    id: string
+  }
 
   let error = { status: false, msg: '' }
 
   const spotifyStore = useSpotifyStore()
   const { savedTracks, playlists } = storeToRefs(spotifyStore)
 
-  const props = defineProps({ playlistType: String, playlist: null })
+  const props = defineProps<{ playlistType: string; playlist: null }>()
   const decades: Decade[] = [
     { id: 50, name: '50s', lowerLimit: 1950, upperLimit: 1959 },
     { id: 60, name: '60s', lowerLimit: 1960, upperLimit: 1969 },
@@ -32,9 +39,9 @@
   ]
 
   const selectedDecade = ref<Decade>({ id: 0, name: '', lowerLimit: 0, upperLimit: 0 })
-
-  const decadePlaylist = computed(() => {
-    let sourcePlaylistTracks
+  const decadePlaylist = ref<decadePlayList>({ tracks: null, name: '', description: '', public: false, id: '' })
+  function createDecadePlaylist(): void {
+    let sourcePlaylistTracks = []
     if (props.playlistType === 'savedSongs') {
       sourcePlaylistTracks = savedTracks.value
     } else if (props.playlistType === 'playlist') {
@@ -42,8 +49,6 @@
         const sourcePlaylist = playlists.find((playlist) => playlist.name === props.playlist.name)
         sourcePlaylistTracks = sourcePlaylist.tracks
       }
-    } else {
-      return { tracks: null, name: '', description: '', public: '', id: '' }
     }
     const decadeTracks: Track[] = []
     if (Array.isArray(sourcePlaylistTracks) && sourcePlaylistTracks.length > 0) {
@@ -56,9 +61,8 @@
         }
       })
     }
-    return { tracks: decadeTracks, name: '', description: '', public: false, id: '' }
-  })
-
+    decadePlaylist.value = { tracks: decadeTracks, name: '', description: '', public: false, id: '' }
+  }
   async function createPlaylistCallback(
     decadePlaylistName: string,
     decadePlaylistDescription: string,
@@ -73,13 +77,15 @@
       decadePlaylist.value.description = decadePlaylistDescription
       decadePlaylist.value.public = publicYesNo
       decadePlaylist.value.id = spotifyStore.spotifyId
-      const response = await axios({
+      await axios({
         method: 'post',
         data: { playlist: decadePlaylist.value },
         url: '/api/spotify/playlists/'
       })
     }
   }
+
+  watch(props, createDecadePlaylist)
 </script>
 
 <template>
@@ -87,8 +93,10 @@
   <div class="row">
     <div class="col-md-6 text-center">
       <label for="selectedDecade">Decade:</label>
-      <select v-model="selectedDecade" id="selectedDecade">
-        <option v-for="decade in decades" :value="decade" :key="decade.id">{{ decade.name }}</option>
+      <select v-model="selectedDecade" id="selectedDecade" @change="createDecadePlaylist">
+        <option v-for="decade in decades" :value="decade" :key="decade.id">
+          {{ decade.name }}
+        </option>
       </select>
     </div>
     <div class="col-md-6">

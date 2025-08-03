@@ -3,14 +3,16 @@
 
   const playlist = defineModel<Track[] | null>()
   function moveUpDown(arr: Track[], index: number, direction: string) {
-    console.log(arr[index])
+    let temp = arr[index]
     if (direction == 'up') {
       if (index > 0) {
-        ;[arr[index], arr[index + 1]] = [arr[index + 1], arr[index]]
+        arr[index] = arr[index - 1]
+        arr[index - 1] = temp
       }
     } else {
       if (index < arr.length - 1) {
-        ;[arr[index], arr[index - 1]] = [arr[index - 1], arr[index]]
+        arr[index] = arr[index + 1]
+        arr[index + 1] = temp
       }
     }
   }
@@ -29,7 +31,7 @@
         </tr>
       </thead>
       <tbody>
-        <tr v-for="(item, index) in playlist" :key="item.id" class="align-middle">
+        <tr v-for="(item, index) in playlist" :key="index" class="align-middle">
           <td>{{ index + 1 }}</td>
           <td>{{ item.name }}</td>
           <td>{{ item.artists[0].name }}</td>
@@ -39,11 +41,13 @@
                 class="btn btn-outline-dark btn-sm bi bi-caret-up-fill"
                 style="font-size: 0.75em"
                 @click="moveUpDown(playlist, index, 'up')"
+                :disabled="index == 0"
               />
               <button
                 class="btn btn-outline-dark btn-sm bi bi-caret-down-fill"
                 style="font-size: 0.75em"
                 @click="moveUpDown(playlist, index, 'down')"
+                :disabled="index >= playlist.length - 1"
               />
             </div>
           </td>
