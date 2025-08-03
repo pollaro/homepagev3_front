@@ -1,19 +1,16 @@
 <script setup lang="ts">
   import type { Track } from '@/interfaces/track'
 
-  const playlist = defineModel<Track[]>()
+  const playlist = defineModel<Track[] | null>()
   function moveUpDown(arr: Track[], index: number, direction: string) {
+    console.log(arr[index])
     if (direction == 'up') {
       if (index > 0) {
-        const toMove = arr[index]
-        arr.splice(index, 1)
-        arr.splice(index - 1, 0, toMove)
+        ;[arr[index], arr[index + 1]] = [arr[index + 1], arr[index]]
       }
     } else {
       if (index < arr.length - 1) {
-        const toMove = arr[index]
-        arr.splice(index, 1)
-        arr.splice(index + 1, 0, toMove)
+        ;[arr[index], arr[index - 1]] = [arr[index - 1], arr[index]]
       }
     }
   }

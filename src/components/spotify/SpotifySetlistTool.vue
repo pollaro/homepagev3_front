@@ -1,10 +1,11 @@
 <script setup lang="ts">
-  import { computed, onRenderTracked, onRenderTriggered, reactive, ref, watch } from 'vue'
+  import { computed, reactive, ref } from 'vue'
   import type { Track } from '@/interfaces/track'
   import axios from 'axios'
   import type { Setlist, SetlistArtist, SetlistSong } from '@/interfaces/setlist'
   import { useSpotifyStore } from '@/stores/spotify'
   import SpotifyPlaylistCreate from '@/components/spotify/SpotifyPlaylistCreate.vue'
+  import SpotifyPlaylistTable from '@/components/spotify/SpotifyPlaylistTable.vue'
 
   const concertUrl = ref<string>('')
   let concertSetlist = reactive<Setlist>({} as Setlist)
@@ -81,73 +82,24 @@
       })
     }
   }
-
-  function moveItem(from: number, to: number, array_in: Track[]): void {
-    array_in.splice(to, 0, array_in.splice(from, 1)[0])
-  }
 </script>
 
 <template>
   <div class="container">
+    <div class="row justify-content-center">
+      <div class="col-md-6 text-center">
+        <span class="text-danger fs-5">This is still under development</span>
+      </div>
+    </div>
     <div class="row">
-      <div class="col-md-6">
+      <div class="col-md-6 text-end">
         Setlist concert url: <input v-model="concertUrl" placeholder="Enter url" autocomplete="off" />
         <button @click="getConcertSetlist">Get Setlist</button>
       </div>
       <div class="col-md-6">
         <SpotifyPlaylistCreate :error="error" @create-playlist.once="createPlaylistCallback" />
-
-        <div class="row">
-          <div
-            class="col-md-6"
-            v-show="concertPlaylist.tracks.length > 0"
-            v-if="concertPlaylist.tracks && concertPlaylist.tracks.length > 0"
-          >
-            <table class="table table-striped">
-              <thead>
-                <tr>
-                  <th scope="col">#</th>
-                  <th scope="col">Name</th>
-                  <th scope="col">Artist</th>
-                  <th scope="col">Move</th>
-                  <th scope="col">Remove</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr v-for="(item, index) in concertPlaylist.tracks" :key="item.id">
-                  <td>{{ index + 1 }}</td>
-                  <td>{{ item.name }}</td>
-                  <td>{{ concertSetlist.artist?.name }}</td>
-                  <td>
-                    <button
-                      type="button"
-                      class="btn btn-secondary"
-                      v-if="index > 0"
-                      @click="moveItem(index, index - 1, playlistTracks)"
-                    >
-                      <i class="bi bi-arrow-up" /></button
-                    ><button
-                      type="button"
-                      class="btn btn-secondary"
-                      v-if="index < playlistTracks.length - 1"
-                      @click="moveItem(index, index + 1, playlistTracks)"
-                    >
-                      <i class="bi bi-arrow-down" />
-                    </button>
-                  </td>
-                  <td>
-                    <button
-                      type="button"
-                      class="btn btn-outline-danger"
-                      @click="concertPlaylist.tracks.splice(index, 1)"
-                    >
-                      X
-                    </button>
-                  </td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
+        <div class="row mt-1">
+          <SpotifyPlaylistTable v-model="concertPlaylist.tracks" />
         </div>
       </div>
     </div>
@@ -169,10 +121,10 @@
         </div>
         <div class="row" v-show="concertSetlist.sets">
           <div class="col-md-6">
-            <table class="table table-striped">
+            <table class="table table-striped align-middle">
               <tbody v-for="(setNumber, setIndex) in concertSetlist.sets?.set" :key="setIndex">
                 <tr>
-                  <td>{{ setNumber.name }}</td>
+                  <td>Set {{ setIndex + 1 }}{{ setNumber.name }}</td>
                 </tr>
                 <tr v-for="(song, songIndex) in setNumber.song" :key="songIndex" :id="`${setIndex}-${songIndex}-row`">
                   <td>
@@ -217,11 +169,11 @@
                                 v-for="(songResult, songResultIndex) in songResults[`song-${setIndex}-${songIndex}`]"
                                 :key="songResultIndex"
                               >
-                                <td>
+                                <td class="results">
                                   Song: {{ songResult.name
                                   }}<span v-if="songResult.album?.name"> on {{ songResult.album.name }}</span>
                                 </td>
-                                <td>
+                                <td class="results">
                                   <button @click="playlistTracks.push(songResult)">Add To Playlist</button>
                                 </td>
                               </tr>
@@ -244,4 +196,11 @@
   </div>
 </template>
 
-<style scoped></style>
+<style scoped>
+  span {
+    padding: 0;
+  }
+  .results {
+    font-size: 0.8em;
+  }
+</style>

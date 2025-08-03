@@ -16,7 +16,7 @@
       <div class="col">
         <ul class="list-unstyled">
           <li>
-            <a :href="`/src/assets/Pollaro_Resume_2024.pdf`" class="fs-1 text-reset text-decoration-none" download>
+            <a :href="`/src/assets/Pollaro_Resume_2025.pdf`" class="fs-1 text-reset text-decoration-none" download>
               Resume
             </a>
           </li>

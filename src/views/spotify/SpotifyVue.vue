@@ -20,8 +20,8 @@
   const router = useRouter()
   const tools: Tool[] = [
     { id: 1, displayName: 'SetList FM', name: 'SpotifySetlistTool', path: '/setlist' },
-    { id: 2, displayName: 'Decade', name: 'SpotifyDecadeTool', path: '/decade' },
-    { id: 3, displayName: 'Manual', name: 'SpotifyManualTool', path: '/manual' }
+    { id: 2, displayName: 'Decade', name: 'SpotifyDecadeTool', path: '/decade' }
+    // { id: 3, displayName: 'Manual', name: 'SpotifyManualTool', path: '/manual' }
   ]
 
   function changeRoute(): void {
@@ -119,9 +119,12 @@
   </div>
 </template>
 
-<style scoped>
+<style>
   select {
     margin-left: 0.5%;
+  }
+  label {
+    padding-right: 5px;
   }
   .topListsItems {
     border: none;

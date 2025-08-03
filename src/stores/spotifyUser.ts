@@ -19,7 +19,7 @@ export const useUserStore = defineStore('spotifyUser', () => {
         await checkLogin()
         return spotifyLoggedIn
       }
-    }, 1000)
+    }, 5000)
   }
 
   async function checkLogin(): Promise<void> {

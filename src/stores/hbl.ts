@@ -1,5 +1,5 @@
 import { defineStore } from 'pinia'
-import { computed, type ComputedRef, type Ref, ref } from 'vue'
+import { type Ref, ref } from 'vue'
 import axios, { type AxiosResponse } from 'axios'
 
 export const useHBLStore = defineStore('hbl', () => {
@@ -19,7 +19,7 @@ export const useHBLStore = defineStore('hbl', () => {
         return
       }
       await checkLoggedIn()
-    }, 500)
+    }, 5000)
   }
 
   function logoutHBL(): void {

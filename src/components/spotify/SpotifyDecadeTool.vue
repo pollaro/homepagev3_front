@@ -95,7 +95,7 @@
       <SpotifyPlaylistCreate :error="error" @create-playlist.once="createPlaylistCallback" />
     </div>
     <div class="row mt-1">
-      <SpotifyPlaylistTable playlist="decadePlaylist.tracks" />
+      <SpotifyPlaylistTable v-model="decadePlaylist.tracks" />
     </div>
   </div>
 </template>
