@@ -3,7 +3,7 @@
   import axios from 'axios'
   import { useSpotifyStore } from '@/stores/spotify'
   import { storeToRefs } from 'pinia'
-  import { ref, watch } from 'vue'
+  import { onMounted, ref, watch } from 'vue'
   import SpotifyPlaylistCreate from '@/components/spotify/SpotifyPlaylistCreate.vue'
   import SpotifyPlaylistTable from '@/components/spotify/SpotifyPlaylistTable.vue'
 

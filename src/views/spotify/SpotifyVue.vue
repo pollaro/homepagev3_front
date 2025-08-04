@@ -3,7 +3,7 @@
   import { useUserStore } from '@/stores/spotifyUser'
   import { useSpotifyStore } from '@/stores/spotify'
   import { useRouter } from 'vue-router'
-  import { ref } from 'vue'
+  import { onMounted, ref, watch } from 'vue'
 
   interface Tool {
     id: number
@@ -34,6 +34,13 @@
       spotifyStore.getPlaylists()
       spotifyStore.getSavedTracks()
     }
+  })
+
+  watch(selectedTool, (toolVal) => localStorage.setItem('selectedTool', toolVal))
+  watch(playlistType, (listVal) => localStorage.setItem('playlistType', listVal))
+  onMounted(() => {
+    playlistType.value = localStorage.getItem('playlistType') || ''
+    selectedTool.value = localStorage.getItem('selectedTool') || ''
   })
 </script>
 
